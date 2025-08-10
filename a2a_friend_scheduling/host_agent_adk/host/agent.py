@@ -24,7 +24,7 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
-
+#DEbug: remove this import: add car_tools
 from .pickleball_tools import (
     book_pickleball_court,
     list_court_availabilities,
@@ -55,6 +55,7 @@ class HostAgent:
         )
 
     async def _async_init_components(self, remote_agent_addresses: List[str]):
+        """Asynchronously initializes the components of the Host agent."""
         async with httpx.AsyncClient(timeout=30) as client:
             for address in remote_agent_addresses:
                 card_resolver = A2ACardResolver(client, address)
@@ -71,7 +72,7 @@ class HostAgent:
                     print(f"ERROR: Failed to initialize connection for {address}: {e}")
 
         agent_info = [
-            json.dumps({"name": card.name, "description": card.description})
+            json.dumps({"name": card.name, "description": card.description}) 
             for card in self.cards.values()
         ]
         print("agent_info:", agent_info)
@@ -86,19 +87,23 @@ class HostAgent:
         await instance._async_init_components(remote_agent_addresses)
         return instance
 
+#DEBUG Host Agent Config
     def create_agent(self) -> Agent:
+        """ Creates ADK Agent from the HostAgent's configuration.
+            
+        """
         return Agent(
-            model="gemini-2.5-flash-preview-04-17",
+            model="gemini-2.5-flash-preview-04-17", #check Model!!
             name="Host_Agent",
             instruction=self.root_instruction,
-            description="This Host agent orchestrates scheduling pickleball with friends.",
+            description="This Host agent orchestrates scheduling pickleball with friends.", #change discription
             tools=[
                 self.send_message,
                 book_pickleball_court,
                 list_court_availabilities,
-            ],
-        )
-
+            ], #Remove book_pickleball_court and list_court_availabilities add Car Agent and Carfax Agent tools
+        )   
+#Debug: Model Prompt: 
     def root_instruction(self, context: ReadonlyContext) -> str:
         return f"""
         **Role:** You are the Host Agent, an expert scheduler for pickleball games. Your primary function is to coordinate with friend agents to find a suitable time to play and then book a court.
@@ -216,14 +221,14 @@ class HostAgent:
                     resp.extend(artifact["parts"])
         return resp
 
-
+### agent tools and available agent defined
 def _get_initialized_host_agent_sync():
     """Synchronously creates and initializes the HostAgent."""
 
     async def _async_main():
-        # Hardcoded URLs for the friend agents
+        # Hardcoded URLs for the friend agents (change to car agent and carfax agent urls)
         friend_agent_urls = [
-            "http://localhost:10002",  # Karley's Agent
+            "http://localhost:10002",  # Karley's Agent 
             "http://localhost:10003",  # Nate's Agent
             "http://localhost:10004",  # Kaitlynn's Agent
         ]
@@ -248,4 +253,4 @@ def _get_initialized_host_agent_sync():
             raise
 
 
-root_agent = _get_initialized_host_agent_sync()
+root_agent = _get_initialized_host_agent_sync() 
