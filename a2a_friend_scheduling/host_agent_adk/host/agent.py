@@ -93,7 +93,7 @@ class HostAgent:
             
         """
         return Agent(
-            model="gemini-2.5-flash-preview-04-17", #check Model!!
+            model="gemini-2.0-flash", #check Model!!
             name="Host_Agent",
             instruction=self.root_instruction,
             description="This Host agent orchestrates scheduling pickleball with friends.", #change discription
